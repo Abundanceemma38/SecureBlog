@@ -1,0 +1,37 @@
+      generator client {
+        provider = "prisma-client-js"
+        
+      }
+
+      datasource db {
+        provider = "sqlite"
+        
+      }
+
+      model User {
+        id        Int      @id @default(autoincrement())
+        username  String   @unique
+        email     String   @unique
+        password  String
+        note      String?
+        createdAt DateTime @default(now())
+      }
+
+      model Post {
+        id         Int      @id @default(autoincrement())
+        title      String   @unique
+        content    String
+        status     String
+        authorId   Int
+        authorName String
+        createdAt  DateTime @default(now())
+        updatedAt  DateTime @updatedAt
+      }
+
+      model Comment {
+        id         Int      @id @default(autoincrement())
+        postId     Int
+        authorName String
+        content    String
+        createdAt  DateTime @default(now())
+      }
