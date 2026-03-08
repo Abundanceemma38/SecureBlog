@@ -165,57 +165,37 @@ export let nextCommentId = globalThis.__nextCommentId;
 // --- LOGIN FUNCTION (vulnerable SQLi simulated) ---
 export async function loginUser(username: string, password: string): Promise<User | null> {
   const simulatedQuery =
-    `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;
+    `SELECT * FROM users WHERE username='${username}' AND password='${password}'`
+  console.log("[VULNERABLE QUERY]:", simulatedQuery)
 
-  console.log("[VULNERABLE QUERY]:", simulatedQuery);
-
+  // Detect ' OR 1=1-- style bypass → return admin
   const isGeneralBypass =
-    username.includes(" ") ||
-    password.includes("' OR 1=1--");
+    username.includes("' OR 1=1--") ||
+    password.includes("' OR 1=1--")
 
   if (isGeneralBypass) {
-    const admin = await prisma.user.findFirst({
-      where: { username: "admin" },
-    });
-
-    if (!admin) return null;
-
-    return {
-      ...admin,
-      createdAt: admin.createdAt.toISOString(),
-      _sqliBypass: true,
-    };
+    const admin = await prisma.user.findFirst({ where: { username: "admin" } })
+    if (!admin) return null
+    return { ...admin, createdAt: admin.createdAt.toISOString(), _sqliBypass: true }
   }
 
-  const user = await prisma.user.findFirst({
-    where: { username, password },
-  });
-  
+  // Detect ' OR username='bob'-- style bypass → return that specific user
+  const usernameBypassMatch =
+    username.match(/'\s*OR\s+username\s*=\s*'([^']+)'/i) ||
+    password.match(/'\s*OR\s+username\s*=\s*'([^']+)'/i)
 
-  if (!user) return null;
+  if (usernameBypassMatch) {
+    const targetUsername = usernameBypassMatch[1]
+    const user = await prisma.user.findFirst({ where: { username: targetUsername } })
+    if (!user) return null
+    return { ...user, createdAt: user.createdAt.toISOString(), _sqliBypass: true }
+  }
 
-  return {
-    ...user,
-    createdAt: user.createdAt.toISOString(),
-
-
-  };
-
-//   const result = await prisma.$queryRawUnsafe<User[]>(`
-//   SELECT * FROM User
-//   WHERE username='${username}'
-//   AND password='${password}'
-// `);
-
-// if   (!result || result.length === 0) return null;
-
-// const user = result[0];
-
-// return {
-//   ...user,
-//   createdAt: new Date(user.createdAt).toISOString(),
-// };
-}
+  // Normal login
+  const user = await prisma.user.findFirst({ where: { username, password } })
+  if (!user) return null
+  return { ...user, createdAt: user.createdAt.toISOString() }
+} 
 
 // --- REGISTER FUNCTION (plaintext passwords) ---
 export async function registerUser(username: string, email: string, password: string): Promise<User | { error: string }> {
