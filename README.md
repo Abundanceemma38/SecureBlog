@@ -43,9 +43,9 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 SecureBlog is a blog platform where users can register, log in, publish posts, write comments, and manage a personal dashboard. On the surface it looks like a normal app — underneath, it is full of real-world vulnerabilities waiting to be found.
 
-![Homepage](./screenshots/homepage2.png)
-![Homepage](./screenshots/homepage3.png)
-![Homepage](./screenshots/homepage1.png)
+![Homepage](screenshots/homepage2.png)
+![Homepage](screenshots/homepage3.png)
+![Homepage](screenshots/homepage1.png)
 
 
 
@@ -64,10 +64,10 @@ This grants access to the admin account without knowing the password. You can al
 
 username: ' OR username='bob'--
 
-![SQL Injection in Burp Suite](./screenshots/sqlinjection1.png)
-![Successful Bypass](./screenshots/sqlinjection2.png)
+![SQL Injection in Burp Suite](screenshots/sqlinjection1.png)
+![Successful Bypass](screenshots/sqlinjection2.png)
 ![SQL Injection in Burp Suite](screenshots/sqlinjection3.png)
-![Successful Bypass](./screenshots/sqlinjection4.png)
+![Successful Bypass](screenshots/sqlinjection4.png)
 
 ---
 
@@ -75,7 +75,7 @@ username: ' OR username='bob'--
 
 After a successful login or bypass, session cookies are set with no `httpOnly`, no `secure`, and no `sameSite` flags. The cookies (`session_user_id`, `session_username`) are readable by JavaScript and visible in plain text in Burp Suite.
 
-![Session Cookies Exposed in Burp](./screenshots/sqlinjection2.png)
+![Session Cookies Exposed in Burp](screenshots/sqlinjection2.png)
 
 **Cookies exposed:**
 - `session_user_id` — numeric user ID
@@ -92,7 +92,7 @@ After gaining admin access via SQLi, browsing to the admin dashboard reveals dra
 
 > `FLAG{draft_post_leak}`
 
-![Admin Dashboard with Draft Posts](./screenshots/idor_draft_lick.png)
+![Admin Dashboard with Draft Posts](screenshots/idor_draft_lick.png)
 
 ### 4. Stored XSS — Cross-Site Scripting via Comments
 
@@ -110,9 +110,9 @@ The comment section explicitly hints that **HTML is supported**. There is no inp
 
 When the admin visits the post, their cookies — including the `debug_flag` — are sent to the attacker's listener.
 
-![XSS Payload Submitted](./screenshots/XssPayload.png)
-![Cookie Theft via XSS](./screenshots/xss-cookie-theft.png)
-![XSS Flag Captured](./screenshots/xss-flag.png)
+![XSS Payload Submitted](screenshots/XssPayload.png)
+![Cookie Theft via XSS](screenshots/xss-cookie-theft.png)
+![XSS Flag Captured](screenshots/xss-flag.png)
 
 ---
 
@@ -128,7 +128,7 @@ No authentication is required to post a comment. This widens the XSS attack surf
 
 Because session cookies only store `session_user_id` and `session_username`, bypassing authentication with `' OR 1=1--` grants full admin-level access including the ability to read all drafts, view the debug flag cookie, and manage all posts.
 
-![Admin Dashboard Access](./screenshots/Admin.png)
+![Admin Dashboard Access](screenshots/Admin.png)
 
 ---
 
