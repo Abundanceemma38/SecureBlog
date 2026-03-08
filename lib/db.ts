@@ -187,16 +187,34 @@ export async function loginUser(username: string, password: string): Promise<Use
     };
   }
 
-  const user = await prisma.user.findFirst({
-    where: { username, password },
-  });
+  // const user = await prisma.user.findFirst({
+  //   where: { username, password },
+  // });
+  
 
-  if (!user) return null;
+  // if (!user) return null;
 
-  return {
-    ...user,
-    createdAt: user.createdAt.toISOString(),
-  };
+  // return {
+  //   ...user,
+  //   createdAt: user.createdAt.toISOString(),
+
+
+  // };
+
+  const result = await prisma.$queryRawUnsafe<User[]>(`
+  SELECT * FROM User
+  WHERE username='${username}'
+  AND password='${password}'
+`);
+
+if (!result || result.length === 0) return null;
+
+const user = result[0];
+
+return {
+  ...user,
+  createdAt: new Date(user.createdAt).toISOString(),
+};
 }
 
 // --- REGISTER FUNCTION (plaintext passwords) ---
